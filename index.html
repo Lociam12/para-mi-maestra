@@ -165,6 +165,17 @@
       h1{font-size:1.7rem}
     }
     @media(max-width:460px){.piropos-grid{grid-template-columns:1fr}}
+  
+    /* ── BOTÓN DE MÚSICA ── */
+    .music-dock{position:fixed;right:22px;bottom:22px;z-index:120;display:flex;align-items:center;gap:10px;font-family:'Trebuchet MS',sans-serif}
+    .music-btn{width:54px;height:54px;flex:0 0 54px;border-radius:50%;border:2px solid var(--gold);background:linear-gradient(135deg,#2a1a40,#1a0a2e);color:var(--gold2);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 26px rgba(0,0,0,.55),0 0 0 0 rgba(212,168,67,.45);animation:musicPulse 2.6s ease-in-out infinite;transition:transform .22s ease}
+    .music-btn:active{transform:scale(.9)}
+    .music-btn.playing{border-color:var(--rose2);animation-duration:1.4s}
+    .music-label{max-width:0;overflow:hidden;white-space:nowrap;background:rgba(26,10,46,.88);border:1px solid var(--gold);border-radius:14px;color:var(--gold2);font-weight:800;font-size:12px;opacity:0;padding:0;transition:max-width .5s ease,opacity .4s ease,padding .5s ease}
+    .music-dock.open .music-label{max-width:240px;opacity:1;padding:9px 14px}
+    #ytWrap{position:fixed;left:-10000px;top:0;width:200px;height:200px;opacity:0;pointer-events:none;overflow:hidden}
+    @keyframes musicPulse{0%,100%{box-shadow:0 8px 26px rgba(0,0,0,.55),0 0 0 0 rgba(212,168,67,.45)}50%{box-shadow:0 8px 26px rgba(0,0,0,.55),0 0 0 13px rgba(212,168,67,0)}}
+    @media (max-width:640px){.music-dock{right:14px;bottom:92px}.music-dock.open .music-label{max-width:190px}}
   </style>
 </head>
 <body>
@@ -428,6 +439,44 @@
     showToast(popMsgs[pi++%popMsgs.length]);
     for(let k=0;k<14;k++) setTimeout(()=>addParticle(true),k*60);
   }
+  </script>
+
+  <!-- ── MÚSICA: Niña Bonita · Binomio de Oro de América ── -->
+  <div class="music-dock" id="musicDock">
+    <div class="music-label" id="musicLabel">🎶 Niña Bonita · Binomio de Oro</div>
+    <button class="music-btn" id="musicBtn" type="button" aria-label="Poner o quitar la música">🎵</button>
+  </div>
+  <div id="ytWrap"><div id="ytHost"></div></div>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+  (function(){
+    var VIDEO_ID='DR6ED6lvkb4';
+    var player=null, ready=false, pending=false;
+    var dock=document.getElementById('musicDock');
+    var btn=document.getElementById('musicBtn');
+
+    window.onYouTubeIframeAPIReady=function(){
+      player=new YT.Player('ytHost',{
+        width:200, height:200, videoId:VIDEO_ID,
+        playerVars:{controls:0,disablekb:1,fs:0,rel:0,playsinline:1,modestbranding:1,loop:1,playlist:VIDEO_ID},
+        events:{
+          onReady:function(){ ready=true; if(pending){ player.playVideo(); pending=false; } },
+          onStateChange:function(e){
+            if(e.data===YT.PlayerState.PLAYING){ btn.textContent='⏸'; btn.classList.add('playing'); dock.classList.add('open'); }
+            else if(e.data===YT.PlayerState.PAUSED||e.data===YT.PlayerState.ENDED){ btn.textContent='🎵'; btn.classList.remove('playing'); }
+          }
+        }
+      });
+    };
+
+    btn.addEventListener('click',function(){
+      if(!ready){ pending=true; btn.textContent='…'; return; }
+      if(player.getPlayerState()===YT.PlayerState.PLAYING){ player.pauseVideo(); }
+      else { player.playVideo(); }
+    });
+
+    setTimeout(function(){ dock.classList.add('open'); setTimeout(function(){ dock.classList.remove('open'); },5000); },2500);
+  })();
   </script>
 </body>
 </html>
