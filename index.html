@@ -176,9 +176,93 @@
     #ytWrap{position:fixed;left:-10000px;top:0;width:200px;height:200px;opacity:0;pointer-events:none;overflow:hidden}
     @keyframes musicPulse{0%,100%{box-shadow:0 8px 26px rgba(0,0,0,.55),0 0 0 0 rgba(212,168,67,.45)}50%{box-shadow:0 8px 26px rgba(0,0,0,.55),0 0 0 13px rgba(212,168,67,0)}}
     @media (max-width:640px){.music-dock{right:14px;bottom:92px}.music-dock.open .music-label{max-width:190px}}
+  
+    /* ── PANTALLA DE INICIO ── */
+    html.intro-lock{overflow:hidden}
+    .intro{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:26px;background:radial-gradient(circle at 50% 35%,#3a1358 0%,#1a0a2e 55%,#0f0820 100%);transition:opacity .8s ease,visibility .8s ease;overflow:hidden}
+    .intro.gone{opacity:0;visibility:hidden;pointer-events:none}
+    .intro-glow{position:absolute;width:min(90vw,520px);height:min(90vw,520px);border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,.22) 0%,rgba(224,92,138,.12) 45%,transparent 70%);animation:introGlow 4.5s ease-in-out infinite}
+    .intro-card{position:relative;z-index:3;text-align:center;max-width:520px;animation:introUp 1s ease both}
+    .intro-eyebrow{display:inline-block;font-family:'Trebuchet MS',sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);background:rgba(212,168,67,.12);border:1px solid rgba(212,168,67,.45);border-radius:999px;padding:8px 16px;margin-bottom:22px}
+    .intro-title{font-family:'Georgia',serif;font-size:clamp(2.4rem,11vw,3.9rem);line-height:1.02;font-weight:400;color:#f7ecff;margin-bottom:16px;text-shadow:0 6px 30px rgba(0,0,0,.6)}
+    .intro-accent{background:linear-gradient(100deg,var(--gold2),var(--rose2),var(--gold2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-style:italic}
+    .intro-sub{font-family:'Trebuchet MS',sans-serif;font-size:.95rem;line-height:1.6;color:rgba(255,220,255,.72);margin-bottom:30px}
+    .intro-btn{font-family:'Trebuchet MS',sans-serif;font-weight:800;font-size:1.02rem;color:#2a0f1d;background:linear-gradient(135deg,var(--gold2),var(--gold) 45%,var(--rose2));border:none;border-radius:999px;padding:17px 34px;cursor:pointer;box-shadow:0 12px 34px rgba(224,92,138,.4),0 0 0 0 rgba(240,199,106,.55);animation:btnPulse 2.2s ease-in-out infinite;transition:transform .2s ease}
+    .intro-btn:active{transform:scale(.94)}
+    .intro-note{margin-top:16px;font-family:'Trebuchet MS',sans-serif;font-size:.76rem;color:rgba(255,220,255,.45)}
+    .intro-emoji{position:absolute;font-size:1.6rem;opacity:.5;animation:introFloat 9s ease-in-out infinite}
+    .intro-emoji:nth-child(2){left:8%;top:16%}
+    .intro-emoji:nth-child(3){right:10%;top:24%;animation-delay:1.2s;font-size:2rem}
+    .intro-emoji:nth-child(4){left:14%;bottom:22%;animation-delay:2.1s}
+    .intro-emoji:nth-child(5){right:16%;bottom:16%;animation-delay:.6s;font-size:1.9rem}
+    .intro-emoji:nth-child(6){left:46%;top:9%;animation-delay:1.7s}
+    .intro-emoji:nth-child(7){right:40%;bottom:8%;animation-delay:2.6s}
+    @keyframes introUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes introGlow{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.12);opacity:1}}
+    @keyframes introFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-18px) rotate(8deg)}}
+    @keyframes btnPulse{0%,100%{box-shadow:0 12px 34px rgba(224,92,138,.4),0 0 0 0 rgba(240,199,106,.55)}50%{box-shadow:0 12px 34px rgba(224,92,138,.4),0 0 0 16px rgba(240,199,106,0)}}
   </style>
 </head>
 <body>
+
+  <!-- ── PANTALLA DE INICIO ── -->
+  <div class="intro" id="intro">
+    <div class="intro-glow" aria-hidden="true"></div>
+    <div class="intro-emoji" aria-hidden="true">💌</div>
+    <div class="intro-emoji" aria-hidden="true">🌹</div>
+    <div class="intro-emoji" aria-hidden="true">✨</div>
+    <div class="intro-emoji" aria-hidden="true">💖</div>
+    <div class="intro-emoji" aria-hidden="true">📚</div>
+    <div class="intro-emoji" aria-hidden="true">💫</div>
+    <div class="intro-card">
+      <div class="intro-eyebrow">✉️ tienes un mensaje sin abrir</div>
+      <h1 class="intro-title">Para ti,<br><span class="intro-accent">maestra</span></h1>
+      <p class="intro-sub">Algo que llevo rato queriendo decirte…<br>y hoy por fin me atreví.</p>
+      <button class="intro-btn" id="enterBtn" type="button">toca para entrar 💌</button>
+      <div class="intro-note">🔊 con música · súbele el volumen</div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var intro=document.getElementById('intro');
+    var btn=document.getElementById('enterBtn');
+    document.documentElement.classList.add('intro-lock');
+
+    function enter(){
+      if(intro.classList.contains('gone')) return;
+      intro.classList.add('gone');
+      if(typeof window.__enterPage==='function'){ window.__enterPage(); }
+      setTimeout(function(){
+        var sky=document.getElementById('particles');
+        if(!sky) return;
+        var em=['💖','✨','🌹','💌','💫','🌸','⭐','💛'];
+        for(var k=0;k<26;k++){
+          (function(k){
+            setTimeout(function(){
+              var el=document.createElement('div');
+              el.className='particle';
+              el.textContent=em[Math.floor(Math.random()*em.length)];
+              el.style.left=Math.random()*100+'vw';
+              el.style.fontSize=(20+Math.random()*16)+'px';
+              el.style.animationDuration=(2.4+Math.random()*2)+'s';
+              el.style.opacity='0.95';
+              sky.appendChild(el);
+              setTimeout(function(){ el.remove(); },9000);
+            }, k*55);
+          })(k);
+        }
+      },380);
+      setTimeout(function(){
+        intro.style.display='none';
+        document.documentElement.classList.remove('intro-lock');
+      },1000);
+    }
+
+    btn.addEventListener('click',enter);
+    btn.addEventListener('touchend',function(e){ e.preventDefault(); enter(); },{passive:false});
+  })();
+  </script>
+
   <!-- LAYERS -->
   <div class="particles" id="particles"></div>
   <div class="phrases-layer" id="phrasesLayer"></div>
@@ -475,6 +559,7 @@
       else { player.playVideo(); }
     });
 
+    window.__enterPage=function(){ if(!ready){ pending=true; return; } player.playVideo(); };
     setTimeout(function(){ dock.classList.add('open'); setTimeout(function(){ dock.classList.remove('open'); },5000); },2500);
   })();
   </script>
